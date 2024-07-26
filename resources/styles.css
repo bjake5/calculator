@@ -1,0 +1,9 @@
+body {
+    display: flex;
+    width: 100%;
+}
+
+title {
+    flex: 1;
+    text-align: center;
+}
