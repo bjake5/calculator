@@ -5,21 +5,21 @@ body {
     justify-items: center;
     background-color: #FCF8F3;
     color: black;
-    font-family: "Roboto";
+    font-family: "Montserrat";
 }
 
 #calculator-container {
     flex: 1;
     display: flex;
     flex-direction: column;
-    border: 2px solid white;
+    border: 2px solid black;
 }
 
 #result-row {
     flex: 1;
     text-align: right;
     border: 2px solid black;
-    font-size: 60px;
+    font-size: 50px;
     padding: 2%;
 }
 
@@ -28,12 +28,17 @@ body {
     display: flex;
 }
 
+.clear-button {
+    background-color: #B7C9E2;
+}
+
 .additional-button {
     background-color: #FFD3B6;
 }
 
 .numeric-button {
     background-color: #698474;
+    color: white;
 }
 
 .arithmetic-button {
@@ -45,8 +50,15 @@ button {
     font-size: 20px;
     padding: 30px;
     color: black;
+    border: .5px solid #FCF8F3;
     min-width: 25%;
     max-width: 25%;
+}
+
+#all-clear-button, #backspace-button {
+    flex-grow: 1;
+    min-width: 50%;
+    max-width: 50%;
 }
 
 #zero-button {
@@ -54,5 +66,7 @@ button {
     min-width: 50%;
     max-width: 50%;
 }
+
+
 
 

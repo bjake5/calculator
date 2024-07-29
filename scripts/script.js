@@ -1,6 +1,8 @@
 const calculatorContainer = document.querySelector("#calculator-container");
 const resultRow = document.createElement("div");
 const allClearButton = document.createElement("button");
+const backspaceButton = document.createElement("button");
+const squaredButton = document.createElement("button");
 const percentButton = document.createElement("button");
 const plusMinusButton = document.createElement("button");
 const divisionButton = document.createElement("button");
@@ -29,6 +31,8 @@ function buildCalculatorLayout () {
     calculatorContainer.appendChild(resultRow);
 
     // Add row containers for button and assign class for CSS styling
+    const topRowContainer = document.createElement("div");
+    topRowContainer.classList.add("row-container");
     const firstRowContainer = document.createElement("div");
     firstRowContainer.classList.add("row-container");
     const secondRowContainer = document.createElement("div");
@@ -42,9 +46,23 @@ function buildCalculatorLayout () {
 
     // Add clear all button
     allClearButton.id = "all-clear-button";
-    allClearButton.textContent = "AC";
-    allClearButton.classList.add("additional-button");
-    firstRowContainer.appendChild(allClearButton);
+    allClearButton.textContent = String.fromCodePoint(0x1F5D1);
+    allClearButton.classList.add("clear-button");
+    topRowContainer.appendChild(allClearButton);
+
+    // Add backspace button
+    backspaceButton.id = "backspace-button";
+    backspaceButton.textContent = String.fromCodePoint(0x1F519);
+    backspaceButton.classList.add("clear-button");
+    topRowContainer.appendChild(backspaceButton);    
+
+    calculatorContainer.appendChild(topRowContainer);
+    
+    // Add percent button
+    squaredButton.id = "squared-button";
+    squaredButton.textContent = "x"+String.fromCodePoint(0xB2);
+    squaredButton.classList.add("additional-button");
+    firstRowContainer.appendChild(squaredButton);
 
     // Add percent button
     percentButton.id = "percent-button";
@@ -142,43 +160,84 @@ function buildCalculatorLayout () {
     currentOperationResult = 0; // Variable to store first number when second exists
     currentInputNumber = ""; // Variable to store current input number
     currentInputArray = []; // Array to store input numbers
-    operation = ""; // Active operation
+    operation = ""; // Reset active operation
     handleButtonActivity();
     
 };
 
+// Build primary function to handle button click activity
 function handleButtonActivity () {
+
+    // Add support for all clear function  
+    allClearButton.addEventListener("click", () => {
+        currentInputNumber = ""; // Clear the current input number
+        currentInputArray.length = 0; // Clear the current input array
+        currentOperationResult = 0; // Clear the current operation result
+        resultRow.textContent = currentOperationResult; // Update the result row to zero
+
+    });    
+
+    backspaceButton.addEventListener("click", () => {
+        currentInputArray.pop();
+        currentInputNumber = currentInputArray.join("");
+        if (currentInputArray.length >1) {
+            resultRow.textContent = currentInputNumber; 
+            currentInputNumber = Number(currentInputNumber);
+        }
+        else resultRow.textContent = currentOperationResult;
+    });  
+
+    // Add support for percentages from whole integers to decimal representation
+    squaredButton.addEventListener("click", () => {
+        if (currentOperationResult == 0) {
+            currentInputNumber = Number(currentInputNumber * currentInputNumber);
+            resultRow.textContent = currentInputNumber; 
+        } else {
+            currentOperationResult = Number(currentInputNumber * currentInputNumber);
+            resultRow.textContent = currentOperationResult; 
+        };
+    });    
+
+
+    // Add support for percentages from whole integers to decimal representation
+    percentButton.addEventListener("click", () => {
+        currentInputNumber = Number(currentInputNumber / 100);
+        resultRow.textContent = currentInputNumber; 
+    });
+
+    // Add support for switching the sign on a function
+    plusMinusButton.addEventListener("click", () => {
+        currentInputNumber = Number(currentInputNumber * -1);
+        resultRow.textContent = currentInputNumber; 
+    });
 
     Array.from(numericButtons).forEach((button) => {
         // and for each one we add a 'click' listener
         button.addEventListener("click", () => {
-            currentInputArray.push(button.textContent);
-            currentInputNumber = Number(currentInputArray.join(""));
-            resultRow.textContent = currentInputNumber;
+            if(button.textContent == '.' && currentInputArray.includes('.')) return false; // Validate that a decimal has not been submitted
+            else {
+            currentInputArray.push(button.textContent); // Add the last character to the input array
+            currentInputNumber = currentInputArray.join(""); // Create a new current input number string from array
+            resultRow.textContent = currentInputNumber; // Update display row with the current input number
+            currentInputNumber = Number(currentInputNumber); // Convert input number to string to mitigate leading decimal handling issues
+            };
         });
       });
-
-    allClearButton.addEventListener("click", () => {
-        currentInputNumber = "";
-        currentInputArray.length = 0;
-        currentOperationResult = 0;
-        resultRow.textContent = currentOperationResult;
-        return false;
-    });    
     
+    // Add support for basic mathematical functions
     sumButton.addEventListener("click", () => {
         operation = "sum";
-        operate();
+        if(currentInputNumber != "") operate();
     });
 
     subtractButton.addEventListener("click", () => {
         operation = "subtract";
-        operate();
+        if(currentInputNumber != "") operate();
     });
 
     multiplyButton.addEventListener("click", () => {
         operation = "multiply";
-        operate();
+        if(currentInputNumber != "") operate();
     });
 
     divisionButton.addEventListener("click", () => {
@@ -207,34 +266,37 @@ function divide (x, y) {
     return x / y;
 }
 
+// Add function to handle calculator operations
 function operate () {
-    if(currentOperationResult == 0 && currentInputNumber == 0) return false;
-    else if (currentOperationResult == 0 && currentInputNumber != 0) {
-        currentOperationResult = currentInputNumber;
+    if(currentOperationResult === 0 && currentInputNumber === 0) return false; // Determine if both inputs are false and should not operate
+    else if (currentOperationResult === 0 && currentInputNumber !== 0) { // Determine if we have two inputs and can operate or wait for second input
+        currentOperationResult = Number(currentInputNumber);
         currentInputNumber = "";
         currentInputArray.length = 0;
         return false;
-    } else if (currentOperationResult != 0 && operation != "") {
+    } else if (currentOperationResult !== 0 && operation !== "") { // Execute operation if we know which one and we have two inputs 
         if(operation == "sum"){
-            currentOperationResult = Math.round(sum(currentOperationResult,currentInputNumber) * 1000) / 1000;
+            currentOperationResult = Math.round(Number(sum(currentOperationResult,currentInputNumber)) * 1000) / 1000;
         } else if (operation == "subtract"){
-            currentOperationResult = Math.round(subtract(currentOperationResult,currentInputNumber) * 1000) / 1000;
+            currentOperationResult = Math.round(Number(subtract(currentOperationResult,currentInputNumber)) * 1000) / 1000;
         } else if (operation == "multiply"){
-            currentOperationResult = Math.round(multiply(currentOperationResult,currentInputNumber) * 1000) / 1000;
+            currentOperationResult = Math.round(Number(multiply(currentOperationResult,currentInputNumber)) * 1000) / 1000;
         } else if (operation == "divide"){
-            currentOperationResult = Math.round(divide(currentOperationResult,currentInputNumber) * 1000) / 1000;
+            currentOperationResult = Math.round(Number(divide(currentOperationResult,currentInputNumber)) * 1000) / 1000;
         };  
     };
-
+    
+    // Updat display row to new result
     resultRow.textContent = currentOperationResult;
     operation = "";
     currentInputNumber = "";
     currentInputArray.length = 0;
 };
 
-function resestAfterOperation () {
-    resultRow.textContent = currentOperationResult;
-    operation = "";
-    currentInputNumber = "";
-    currentInputArray.length = 0;
-}
+/*
+function log () {
+    console.log(currentInputArray);
+    console.log(currentInputNumber);
+    console.log(currentOperationResult);
+};
+*/
