@@ -29,16 +29,15 @@ body {
 }
 
 .clear-button {
-    background-color: #B7C9E2;
+    background-color: #f4c3c2;
 }
 
 .additional-button {
-    background-color: #FFD3B6;
+    background-color: #7c95b6;
 }
 
 .numeric-button {
     background-color: #698474;
-    color: white;
 }
 
 .arithmetic-button {
@@ -49,13 +48,14 @@ button {
     flex: 1;
     font-size: 20px;
     padding: 30px;
-    color: black;
+    color: white;
     border: .5px solid #FCF8F3;
     min-width: 25%;
     max-width: 25%;
 }
 
-#all-clear-button, #backspace-button {
+#all-clear-button, 
+#backspace-button {
     flex-grow: 1;
     min-width: 50%;
     max-width: 50%;
